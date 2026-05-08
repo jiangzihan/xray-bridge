@@ -12,7 +12,20 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  # 步骤 1: 单独 job 先把 GitHub Release "壳" 建起来.
+  # 必须独立, 否则 4 个 matrix job 并行抢着创建同一个 release, 只有一个赢,
+  # 其他几个会 "release not found" 失败.
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # 步骤 2: 4 个 target 并行编译并上传到上面创建好的 release
   build:
+    needs: create-release
     name: ${{ matrix.target }}
     runs-on: ubuntu-latest
     strategy:

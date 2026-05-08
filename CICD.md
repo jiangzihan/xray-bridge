@@ -47,6 +47,40 @@
 
 `taiki-e/upload-rust-binary-action@v1` 一行解决交叉编译 + strip + 打包 + SHA256 + 上传。
 
+### ⚠ 必须分两个 job：先 create-release，再 matrix 上传
+
+否则 4 个 matrix job 并行启动时**抢着创建同一个 GitHub Release**，会出竞态——一个赢，其他几个看到「release not found」失败。
+
+正确写法（已采用）：
+
+```yaml
+jobs:
+  create-release:                          # ← 独立 job, 先跑
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: create-release                  # ← 等 release 壳建好再开
+    strategy:
+      matrix: { ... }
+    steps:
+      - uses: taiki-e/upload-rust-binary-action@v1
+        # 现在 release 一定存在, 直接上传
+```
+
+**症状识别**（如果再忘）：日志里看到这种循环 retry 就是这个问题：
+```
+release not found
+release not found
+release not found
+... (重复 N 次)
+Error: Process completed with exit code 1.
+```
+
 ---
 
 ## 3. 快速使用
@@ -142,6 +176,7 @@ git push origin v0.2.0-rc.1
 
 | 报错 | 解决 |
 |---|---|
+| `release not found` 反复 retry | matrix 并行抢着创建 release 出竞态；`release.yml` 必须分 `create-release` + `build` 两个 job (详见第 2 章) |
 | `403 Forbidden` 创建 Release | 仓库 Settings → Actions → General → 选 "Read and write permissions" |
 | 某 target 编译失败 | 看具体哪个 target 在 matrix 里红的；通常是依赖不支持该平台，删掉对应行 |
 | `tag already exists` | tag 同名重新发：先 `git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z`，再重新打 |
