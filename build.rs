@@ -1,4 +1,8 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 用 vendored protoc 二进制, 避免 cross-compile 容器 / 各种 CI 环境
+    // 找不到 protoc 的问题. 不影响最终 release binary, 只是 build-time 工具.
+    std::env::set_var("PROTOC", protoc_bin_vendored::protoc_bin_path()?);
+
     tonic_build::configure()
         .build_server(false)
         .build_client(true)

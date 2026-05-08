@@ -32,6 +32,9 @@ async-trait = "0.1"
 
 [build-dependencies]
 tonic-build = { version = "0.12", default-features = false, features = ["prost", "transport"] }
+# 自带 protoc 二进制, 避免 cross-compile 容器内找不到 protoc 的问题.
+# 不影响最终 release binary 大小, 只是 build-time 依赖.
+protoc-bin-vendored = "3"
 
 [profile.release]
 lto = true

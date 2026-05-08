@@ -27,10 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install protoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends protobuf-compiler
+      # 注意: 不需要安装 protoc — build.rs 用 protoc-bin-vendored 自带二进制.
+      # 这对 cross-compile 至关重要 (cross 在 Docker 容器里跑, 找不到 host 装的 protoc).
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:

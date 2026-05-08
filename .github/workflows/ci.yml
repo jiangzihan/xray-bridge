@@ -16,10 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install protoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends protobuf-compiler
+      # 注: 不装 protoc — build.rs 用 protoc-bin-vendored 自带, 各环境一致.
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
