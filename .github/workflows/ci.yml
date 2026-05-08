@@ -7,7 +7,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTFLAGS: "-D warnings"
+  # 注意: 不在这里设 RUSTFLAGS=-D warnings, 否则 build.rs 生成的代码也会被严格检查;
+  # 严格检查只在 clippy 上做 (下面 -- -D warnings)
 
 jobs:
   check:
@@ -30,7 +31,7 @@ jobs:
       - name: cargo fmt --check
         run: cargo fmt --all -- --check
 
-      - name: cargo clippy
+      - name: cargo clippy (warnings = errors)
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: cargo test

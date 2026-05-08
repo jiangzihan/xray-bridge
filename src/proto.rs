@@ -1,7 +1,8 @@
 // Prost-generated protobuf types for all Xray gRPC services.
-// All include_proto! blocks are wrapped in allow(clippy::all) to suppress
-// warnings in generated code that we cannot modify.
+// 生成代码包含很多用不到的 message (proto 文件总有未引用的 Config / GeoIp 等),
+// 这是正常的; 用 #[allow(dead_code)] + #[allow(clippy::all)] 在模块层抑制.
 
+#[allow(dead_code)]
 #[allow(clippy::all)]
 pub mod xray {
     pub mod common {
